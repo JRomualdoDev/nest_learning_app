@@ -1,5 +1,15 @@
-import { Controller, Get, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+} from '@nestjs/common';
 import { TarefasService } from './tarefas.service';
+import { CreateTarefasDto } from './dto/create-tarefas.dto';
+import { UpdateTarefasDto } from './dto/update-tarefas.dto';
 
 @Controller('tarefas')
 export class TarefasController {
@@ -10,13 +20,23 @@ export class TarefasController {
     return this.tarefasService.getTarefas();
   }
 
-  @Post('create')
-  createTarefas() {
-    return this.tarefasService.create({
-      id: 1,
-      title: 'Estudar NestJS',
-      description: 'Estudar NestJS para criar uma API',
-      status: 'pendente',
-    });
+  @Post()
+  create(@Body() tarefa: CreateTarefasDto) {
+    this.tarefasService.create(tarefa);
+  }
+
+  @Get(':id')
+  getTarefa(@Param('id') id: string) {
+    return this.tarefasService.getTarefa(+id);
+  }
+
+  @Put(':id')
+  update(@Param('id') id: string, @Body() updateTarefaDto: UpdateTarefasDto) {
+    return this.tarefasService.update(+id, updateTarefaDto);
+  }
+
+  @Delete(':id')
+  delete(@Param('id') id: string) {
+    return this.tarefasService.delete(+id);
   }
 }
