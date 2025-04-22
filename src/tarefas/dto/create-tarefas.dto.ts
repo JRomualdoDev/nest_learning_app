@@ -1,6 +1,6 @@
 export class CreateTarefasDto {
-  id: number;
-  title: string;
-  description: string;
-  status: string;
+  id: string;
+  titulo: string;
+  status: 'COMPLETED' | 'IN_PROGRESS' | 'PENDING' | 'CANCELLED';
+  descricao: string | null | undefined;
 }

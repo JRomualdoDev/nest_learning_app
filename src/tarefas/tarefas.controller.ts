@@ -1,42 +1,58 @@
 import {
-  Body,
   Controller,
-  Delete,
   Get,
   Param,
   Post,
+  Body,
   Put,
+  Delete,
 } from '@nestjs/common';
 import { TarefasService } from './tarefas.service';
+import { Tarefa as TarefaModel } from '@prisma/client';
+import { ParseUUIDPipe } from '@nestjs/common';
 import { CreateTarefasDto } from './dto/create-tarefas.dto';
 import { UpdateTarefasDto } from './dto/update-tarefas.dto';
 
-@Controller('tarefas')
-export class TarefasController {
-  constructor(private tarefasService: TarefasService) {}
+@Controller()
+export class AppController {
+  constructor(private readonly tarefaService: TarefasService) {}
+
+  @Get(':id')
+  async getTarefaById(
+    @Param('id', ParseUUIDPipe) id: string
+  ): Promise<TarefaModel | null> {
+    return this.tarefaService.tarefa({ id });
+  }
 
   @Get()
-  getTarefas() {
-    return this.tarefasService.getTarefas();
+  async getTarefas(): Promise<TarefaModel[]> {
+    return this.tarefaService.tarefas({
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
   }
 
   @Post()
-  create(@Body() tarefa: CreateTarefasDto) {
-    this.tarefasService.create(tarefa);
-  }
-
-  @Get(':id')
-  getTarefa(@Param('id') id: string) {
-    return this.tarefasService.getTarefa(+id);
+  async createTarefa(
+    @Body() tarefaData: CreateTarefasDto
+  ): Promise<TarefaModel> {
+    return this.tarefaService.createTarefa(tarefaData);
   }
 
   @Put(':id')
-  update(@Param('id') id: string, @Body() updateTarefaDto: UpdateTarefasDto) {
-    return this.tarefasService.update(+id, updateTarefaDto);
+  async updateTarefa(
+    @Param('id') id: string,
+    @Body() updateData: UpdateTarefasDto
+  ): Promise<TarefaModel> {
+    return this.tarefaService.updateTarefa({
+      where: { id: id },
+      data: updateData,
+    });
   }
 
-  @Delete(':id')
-  delete(@Param('id') id: string) {
-    return this.tarefasService.delete(+id);
+  @Delete('post/:id')
+  async deleteTarefa(@Param('id') id: string): Promise<TarefaModel> {
+    return this.tarefaService.deleteTarefa({ id: id });
   }
 }

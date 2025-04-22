@@ -1,30 +1,58 @@
 import { Injectable } from '@nestjs/common';
-import { CreateTarefasDto } from './dto/create-tarefas.dto';
-import { UpdateTarefasDto } from './dto/update-tarefas.dto';
+import { PrismaService } from 'src/prisma.service';
+import { Prisma, Tarefa } from '@prisma/client';
 
 @Injectable()
 export class TarefasService {
-  private readonly tarefas: CreateTarefasDto[] = [];
+  // private readonly tarefas: CreateTarefasDto[] = [];
 
-  getTarefas() {
-    return this.tarefas;
+  constructor(private prisma: PrismaService) {}
+
+  async tarefa(
+    tarefaWhereUniqueInput: Prisma.TarefaWhereUniqueInput
+  ): Promise<Tarefa | null> {
+    return this.prisma.tarefa.findUnique({
+      where: tarefaWhereUniqueInput,
+    });
   }
 
-  getTarefa(id: number) {
-    return this.tarefas.find((tarefa) => tarefa.id === id);
+  async tarefas(params: {
+    skip?: number;
+    take?: number;
+    cursor?: Prisma.TarefaWhereUniqueInput;
+    where?: Prisma.TarefaWhereInput;
+    orderBy?: Prisma.TarefaOrderByWithRelationInput;
+  }): Promise<Tarefa[]> {
+    const { skip, take, cursor, where, orderBy } = params;
+    return this.prisma.tarefa.findMany({
+      skip,
+      take,
+      cursor,
+      where,
+      orderBy,
+    });
   }
 
-  create(tarefa: CreateTarefasDto) {
-    return this.tarefas.push(tarefa);
+  async createTarefa(data: Prisma.TarefaCreateInput): Promise<Tarefa> {
+    return this.prisma.tarefa.create({
+      data,
+    });
   }
 
-  update(id: number, tarefa: UpdateTarefasDto) {
-    const index = this.tarefas.findIndex((tarefa) => tarefa.id === id);
-    this.tarefas[index] = tarefa;
+  async updateTarefa(params: {
+    where: Prisma.TarefaWhereUniqueInput;
+    data: Prisma.TarefaUpdateInput;
+  }): Promise<Tarefa> {
+    const { where, data } = params;
+    return this.prisma.tarefa.update({
+      data,
+      where,
+    });
   }
 
-  delete(id: number) {
-    const index = this.tarefas.findIndex((tarefa) => tarefa.id === id);
-    this.tarefas.splice(index, 1);
+  async deleteTarefa(where: Prisma.TarefaWhereUniqueInput): Promise<Tarefa> {
+    return this.prisma.tarefa.delete({
+      where,
+    });
   }
 }
